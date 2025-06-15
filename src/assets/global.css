@@ -1,0 +1,229 @@
+/* Animaciones globales */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* Utilidades de animación */
+.hover-lift {
+  transition: transform 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+/* Efectos de brillo */
+.glow {
+  position: relative;
+}
+
+.glow::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.glow:hover::after {
+  opacity: 1;
+}
+
+/* Efectos de portal */
+.portal-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.portal-effect::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    #22c55e 0deg,
+    #16a34a 90deg,
+    #15803d 180deg,
+    #166534 270deg,
+    #22c55e 360deg
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+.portal-effect:hover::before {
+  opacity: 0.1;
+  animation: rotate 4s linear infinite;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Estilos para el modo oscuro */
+.dark .glow::after {
+  background: radial-gradient(circle at center, rgba(34,197,94,0.1) 0%, transparent 70%);
+}
+
+/* Utilidades de texto */
+.text-shadow {
+  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.dark .text-shadow {
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Efectos de tarjeta */
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Transiciones suaves globales */
+* {
+  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Mejoras para las imágenes */
+.character-image {
+  position: relative;
+  overflow: hidden;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.character-image img {
+  transition: transform 0.3s ease-out;
+  will-change: transform;
+}
+
+.character-image:hover img {
+  transform: scale(1.1);
+}
+
+/* Mejoras para AG Grid */
+.ag-theme-alpine, .ag-theme-alpine-dark {
+  --ag-grid-size: 6px;
+  --ag-list-item-height: 40px;
+  --ag-row-height: 48px;
+  --ag-cell-horizontal-padding: 12px;
+  --ag-borders: none;
+  --ag-row-hover-color: rgba(0, 255, 0, 0.1);
+}
+
+.ag-theme-alpine .ag-row,
+.ag-theme-alpine-dark .ag-row {
+  transition: background-color 0.2s ease;
+}
+
+.ag-theme-alpine .ag-row:hover,
+.ag-theme-alpine-dark .ag-row:hover {
+  background-color: var(--ag-row-hover-color) !important;
+}
+
+/* Mejoras en las transiciones de vista */
+.view-transition {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.view-transition.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Efecto de brillo para los indicadores de estado */
+.shadow-glow {
+  box-shadow: 0 0 10px currentColor;
+}
+
+/* Aspect ratio para imágenes */
+.aspect-w-16 {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 */
+}
+
+.aspect-w-4 {
+  position: relative;
+  padding-bottom: 75%; /* 4:3 */
+}
+
+[class^="aspect-"] > * {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+/* Efecto de viñeta para las imágenes */
+.vignette {
+  position: relative;
+}
+
+.vignette::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  box-shadow: inset 0 0 100px rgba(0,0,0,0.5);
+  pointer-events: none;
+}
+
+/* Mejora de la sombra de texto */
+.text-shadow {
+  text-shadow: 
+    0 2px 4px rgba(0,0,0,0.3),
+    0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Límite de líneas de texto */
+.line-clamp-1 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+}
+
+/* Animación de entrada para las tarjetas */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card-hover {
+  animation: fadeInUp 0.5s ease-out forwards;
+  will-change: transform;
+}

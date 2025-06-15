@@ -1,0 +1,279 @@
+<template>
+  <div>
+    <div class="mb-4 space-y-4 sm:space-y-0 sm:flex sm:flex-wrap sm:gap-4 sm:justify-between sm:items-center">
+      <!-- Controles de búsqueda y filtros -->
+      <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+        <div class="relative flex-grow sm:flex-grow-0">
+          &lt;span class="material-icons absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"&gt;search&lt;/span&gt;
+          &lt;input 
+            v-model="search" 
+            placeholder="Buscar por nombre..." 
+            class="pl-10 w-full sm:w-64 border px-3 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-green-400 transition-all duration-200 dark:bg-gray-800 dark:text-white dark:border-gray-700 bg-white/90 dark:bg-gray-800/90"
+          /&gt;
+        &lt;/div&gt;
+        
+        &lt;!-- Filtros --&gt;
+        &lt;select 
+          v-model="filterStatus" 
+          class="flex-grow sm:flex-grow-0 border px-3 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-green-400 transition-all duration-200 dark:bg-gray-800 dark:text-white dark:border-gray-700 bg-white/90 dark:bg-gray-800/90"
+        &gt;
+          &lt;option value=""&gt;Estado&lt;/option&gt;
+          &lt;option value="Alive"&gt;Vivo&lt;/option&gt;
+          &lt;option value="Dead"&gt;Muerto&lt;/option&gt;
+          &lt;option value="unknown"&gt;Desconocido&lt;/option&gt;
+        &lt;/select&gt;
+
+        &lt;select 
+          v-model="filterGender" 
+          class="flex-grow sm:flex-grow-0 border px-3 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-green-400 transition-all duration-200 dark:bg-gray-800 dark:text-white dark:border-gray-700 bg-white/90 dark:bg-gray-800/90"
+        &gt;
+          &lt;option value=""&gt;Género&lt;/option&gt;
+          &lt;option value="Female"&gt;Femenino&lt;/option&gt;
+          &lt;option value="Male"&gt;Masculino&lt;/option&gt;
+          &lt;option value="Genderless"&gt;Sin género&lt;/option&gt;
+          &lt;option value="unknown"&gt;Desconocido&lt;/option&gt;
+        &lt;/select&gt;
+
+        &lt;select 
+          v-model="filterSpecies" 
+          class="flex-grow sm:flex-grow-0 border px-3 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-green-400 transition-all duration-200 dark:bg-gray-800 dark:text-white dark:border-gray-700 bg-white/90 dark:bg-gray-800/90"
+        &gt;
+          &lt;option value=""&gt;Especie&lt;/option&gt;
+          &lt;option value="Human"&gt;Humano&lt;/option&gt;
+          &lt;option value="Alien"&gt;Alien&lt;/option&gt;
+          &lt;option value="Robot"&gt;Robot&lt;/option&gt;
+          &lt;option value="Animal"&gt;Animal&lt;/option&gt;
+          &lt;option value="Mythological"&gt;Mitológico&lt;/option&gt;
+          &lt;option value="unknown"&gt;Desconocido&lt;/option&gt;
+        &lt;/select&gt;
+      &lt;/div&gt;
+
+      &lt;!-- Botones de acción --&gt;
+      &lt;div class="flex gap-2 justify-end"&gt;
+        &lt;button 
+          @click="toggleView" 
+          class="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 px-4 py-2 rounded-lg shadow-sm transition-all duration-200 flex items-center gap-2"
+          :title="isGridView ? 'Ver como tabla' : 'Ver como cuadrícula'"
+        &gt;
+          &lt;span class="material-icons"&gt;{{ isGridView ? 'table_rows' : 'grid_view' }}&lt;/span&gt;
+        &lt;/button&gt;
+        &lt;button 
+          @click="exportCSV" 
+          class="bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 text-white px-4 py-2 rounded-lg shadow-md transition-all duration-200 font-semibold flex items-center gap-2"
+        &gt;
+          &lt;span class="material-icons"&gt;download&lt;/span&gt;
+          &lt;span class="hidden sm:inline"&gt;Exportar CSV&lt;/span&gt;
+        &lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;!-- Vista de cuadrícula --&gt;
+    &lt;div v-if="isGridView" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"&gt;
+      &lt;div v-for="character in filteredCharacters" 
+           :key="character.id" 
+           class="group bg-white/90 dark:bg-gray-800/90 rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer"
+           @click="onCharacterClick(character)"&gt;
+        &lt;!-- Contenedor de imagen con ratio aspect --&gt;
+        &lt;div class="aspect-w-4 aspect-h-3 relative overflow-hidden"&gt;
+          &lt;img 
+            :src="character.image" 
+            :alt="character.name" 
+            class="w-full h-full object-cover transition-all duration-500 group-hover:scale-110" 
+            loading="lazy"
+          /&gt;
+          &lt;!-- Overlay gradiente --&gt;
+          &lt;div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"&gt;&lt;/div&gt;
+          
+          &lt;!-- Botón de favorito --&gt;
+          &lt;button 
+            @click.stop="toggleFav(character)"
+            class="absolute top-2 right-2 z-20 w-8 h-8 flex items-center justify-center rounded-full bg-black/40 backdrop-blur-sm transition-all duration-300 transform hover:scale-110 hover:bg-black/60 opacity-0 group-hover:opacity-100"
+            :title="character.isFav ? 'Quitar de favoritos' : 'Añadir a favoritos'"
+            :class="{'text-yellow-400': character.isFav, 'text-white': !character.isFav}"
+          &gt;
+            &lt;span class="material-icons text-lg"&gt;
+              {{ character.isFav ? 'star' : 'star_outline' }}
+            &lt;/span&gt;
+          &lt;/button&gt;
+        &lt;/div&gt;
+        
+        &lt;!-- Contenido de la tarjeta --&gt;
+        &lt;div class="p-4"&gt;
+          &lt;h3 class="font-bold text-lg mb-2 line-clamp-1 text-gray-900 dark:text-white group-hover:text-green-500 transition-colors duration-300"&gt;
+            {{ character.name }}
+          &lt;/h3&gt;
+          &lt;div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300"&gt;
+            &lt;span 
+              class="inline-block w-2 h-2 rounded-full"
+              :class="{
+                'bg-green-500': character.status === 'Alive',
+                'bg-red-500': character.status === 'Dead',
+                'bg-gray-500': character.status === 'unknown'
+              }"
+            &gt;&lt;/span&gt;
+            &lt;span class="line-clamp-1"&gt;{{ character.status }} - {{ character.species }}&lt;/span&gt;
+          &lt;/div&gt;
+          &lt;div class="mt-2 text-sm text-gray-500 dark:text-gray-400 line-clamp-1"&gt;
+            {{ character.origin.name }}
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;!-- Loader y mensajes --&gt;
+    &lt;AppLoader v-if="loading"/&gt;
+    &lt;ErrorMessage
+      v-if="error"
+      :title="error.title"
+      :message="error.message"
+      @retry="fetchCharacters"
+      @close="error = null"
+    /&gt;
+    &lt;div v-if="!loading && filteredCharacters.length === 0" 
+         class="text-center p-8 bg-white/90 dark:bg-gray-800/90 rounded-xl mt-4"&gt;
+      &lt;span class="material-icons text-4xl text-gray-400 mb-2"&gt;search_off&lt;/span&gt;
+      &lt;p class="text-gray-500 dark:text-gray-400"&gt;No se encontraron resultados.&lt;/p&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+
+&lt;script setup&gt;
+import { ref, onMounted, computed, watch, nextTick } from 'vue'
+import AppLoader from './Loader.vue'
+import ErrorMessage from './ErrorMessage.vue'
+import { api } from '../services/api'
+import { storage } from '../services/storage'
+
+const emit = defineEmits(['show-modal', 'toggle-fav'])
+const { favorites, isDark } = defineProps({
+  favorites: {
+    type: Array,
+    required: true
+  },
+  isDark: {
+    type: Boolean,
+    default: false
+  }
+})
+
+const characters = ref([])
+const loading = ref(true)
+const search = ref('')
+const filterStatus = ref('')
+const filterGender = ref('')
+const filterSpecies = ref('')
+const isGridView = ref(true)
+const error = ref(null)
+
+const filteredCharacters = computed(() =&gt; {
+  let data = characters.value
+  if (search.value) {
+    const searchLower = search.value.toLowerCase()
+    data = data.filter(c =&gt; 
+      c.name.toLowerCase().includes(searchLower) ||
+      c.species.toLowerCase().includes(searchLower) ||
+      c.origin.name.toLowerCase().includes(searchLower)
+    )
+  }
+  if (filterStatus.value) {
+    data = data.filter(c =&gt; c.status === filterStatus.value)
+  }
+  if (filterGender.value) {
+    data = data.filter(c =&gt; c.gender === filterGender.value)
+  }
+  if (filterSpecies.value) {
+    data = data.filter(c =&gt; c.species === filterSpecies.value)
+  }
+  return data
+})
+
+async function fetchCharacters() {
+  loading.value = true
+  error.value = null
+  try {
+    const data = await api.getAllCharacters()
+    characters.value = data.map(c =&gt; ({
+      ...c,
+      isFav: favorites.some(f =&gt; f.id === c.id)
+    }))
+  } catch (err) {
+    console.error('Error:', err)
+    error.value = {
+      title: 'Error al cargar los personajes',
+      message: 'No pudimos conectar con el multiverso. ¿Quieres intentarlo de nuevo?'
+    }
+  } finally {
+    loading.value = false
+  }
+}
+
+function onCharacterClick(character) {
+  emit('show-modal', character)
+}
+
+const toggleFav = (character) =&gt; {
+  emit('toggle-fav', character)
+}
+
+const toggleView = () =&gt; {
+  isGridView.value = !isGridView.value
+  storage.saveViewPreference(isGridView.value ? 'grid' : 'table')
+}
+
+function exportCSV() {
+  const rows = filteredCharacters.value.map(c =&gt;
+    [c.name, c.species, c.gender, c.status, c.origin.name].join(',')
+  )
+  const csv = 'Nombre,Especie,Género,Estado,Origen\n' + rows.join('\n')
+  const blob = new Blob([csv], { type: 'text/csv' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'personajes.csv'
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+// Actualizar grid cuando cambian los filtros
+watch([search, filterStatus, filterGender, filterSpecies], () =&gt; {
+  nextTick(() =&gt; {
+    // La vista se actualizará automáticamente por la reactividad
+  })
+}, { deep: true })
+
+// Sincronizar favoritos cuando cambian
+watch(() =&gt; favorites, (newFavs) =&gt; {
+  characters.value.forEach(c =&gt; {
+    c.isFav = newFavs.some(f =&gt; f.id === c.id)
+  })
+}, { deep: true })
+
+onMounted(() => {
+  fetchCharacters()
+  const preferredView = storage.getViewPreference()
+  if (preferredView) {
+    isGridView.value = preferredView === 'grid'
+  }
+})
+&lt;/script&gt;
+
+&lt;style scoped&gt;
+.shadow-glow {
+  box-shadow: 0 0 10px currentColor;
+}
+
+/* Efecto hover en las cards */
+.hover\:shadow-xl:hover {
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
+/* Animación del botón de favorito */
+.favorite-bounce {
+  animation: bounce 0.3s cubic-bezier(0.36, 0, 0.66, -0.56) both;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+}
+&lt;/style&gt;
