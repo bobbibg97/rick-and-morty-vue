@@ -2,6 +2,12 @@
 
 Aplicación web desarrollada en Vue 3 que permite explorar y gestionar información sobre los personajes de Rick and Morty.
 
+Participantes:
+ - Roberto Bustamante.
+ - Christian Gómez.
+ - Leticia Caje.
+ - Christian González.
+
 ## 🚀 Características
 
 - 🎯 Vista dual: cuadrícula y tabla
